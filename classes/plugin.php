@@ -72,25 +72,23 @@ class Plugin {
     return $val;
   }
 
-  // Walk through an array of strings and remove any leading or trailing white
-  // space and replace `<`, `>`, `&`, `”` and `‘` with corrsponding  HTML
-  // entity code (e.g. `&` becomes `&amp;`).
-  public static function esc_attrs( $vals ) {
-    foreach($vals as &$val) {
-      $val = esc_attr( trim( $val ) );
-    }
-    return $vals;
-  }
-
   // Returns a string of space separated key/value-pairs from the provided
-  // array. The key/value pair has he form `key="value"`.
-  public static function attributes( $atts ) {
-    foreach( $atts as $att => &$val ) {
-      if ( ! empty ( $val ) ) {
-        $val = "{$att}=\"{$val}\"";
-      }      
+  // array. The key/value pair has the form `key="value"`. Only key/value-
+  // pairs with a non-empty value after removing leading and trailing spaces
+  // will be present. The value will be HTML encoded – any of the characters
+  // `<`, `>`, `&`, `”` and `‘` is replcaed with corrsponding  HTML entity.
+  public static function attributes( $attributes ) {
+    $a = [];
+    foreach( $attributes as $key => $value ) {
+      if ( is_string( $value ) ) {
+        $value = trim( $value );
+        if ( '' != $value ) {
+          $value = esc_attr( $value );
+          $a[] = "$key=\"$value\"";
+        }
+      }
     }
-    return join( ' ', array_filter( $atts ) );
+    return join( ' ', $a );
   }
 
   // A more forgiving version of WP's shortcode_atts().

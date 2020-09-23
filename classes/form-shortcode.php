@@ -42,11 +42,6 @@ class Form_Shortcode {
     $show = Plugin::peel_off( 'show', $atts );
     $no_br = Plugin::peel_off( 'no_br', $atts );
 
-    // Remaning attributes will be used as HTML attributes. Remove those with
-    // no value, and trim and escape the other.
-    $atts = array_filter( $atts, function( $att ) { return null !== $att; } );
-    $atts = Plugin::esc_attrs( $atts );
-
     // Execute field shortcodes in the enloced content.
     Plugin::instance( 'Field_Shortcode' )->run(); // Add field shortcode
     $content = do_shortcode( $content ); // Process shortcodes in content.

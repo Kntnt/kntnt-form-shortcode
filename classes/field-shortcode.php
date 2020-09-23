@@ -139,11 +139,6 @@ class Field_Shortcode {
   // Generate HTML for a field.
   private static function field( $atts, $content ) {
 
-    // Attributes will be used as HTML attributes. Remove those with
-    // no value, and trim and escape the others.
-    $atts = array_filter( $atts, function( $att ) { return null !== $att; } );
-    $atts = Plugin::esc_attrs( $atts );
-
     // Get the type and id of the field.
     $type = Plugin::peel_off( 'type', $atts );
     $id = Plugin::peel_off( 'id', $atts );
@@ -169,11 +164,6 @@ class Field_Shortcode {
     // Extract non-HTML attributes.
     $label = Plugin::peel_off( 'label', $atts );
     $description = Plugin::peel_off( 'description', $atts );
-
-    // Remaining attributes will be used as HTML attributes. Remove those with
-    // no value, and trim and escape the others.
-    $atts = array_filter( $atts, function( $att ) { return null !== $att; } );
-    $atts = Plugin::esc_attrs( $atts );
 
     // Get the type and id of the field wrapped.
     $type = Plugin::peel_off( 'type', $atts );
