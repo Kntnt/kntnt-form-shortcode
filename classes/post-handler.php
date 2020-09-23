@@ -31,7 +31,7 @@ class Post_Handler {
     // being there. Jeez…
     $form_data = stripslashes_deep( $_POST[$id] );
 
-    $show = Plugin::peel_off( 'show', $form_data); // TODO: ADD THIS TO THE FORM!!!
+    $show = Plugin::peel_off( 'show', $form_data);
 
     // Let developers do something clever with the form data. :-)
     do_action( 'kntnt-form-shortcode-post', $form_data, $id );
