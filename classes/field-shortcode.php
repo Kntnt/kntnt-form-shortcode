@@ -100,7 +100,7 @@ class Field_Shortcode {
 
     // Do nothing if type isn't provided or not supported.
     if ( empty( $atts['type'] ) || ! isset( self::$templates[$atts['type']] ) ) {
-      return $content;
+      return '<div style="color:red">Kntnt Form Shortcode: Error: A field must have a type.</div>';
     }
 
     // Add `id` if missing. 

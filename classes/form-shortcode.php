@@ -34,6 +34,12 @@ class Form_Shortcode {
 
   public function shortcode( $atts, $content ) {
 
+    // Do nothing if the form hasn't an id.
+    if ( empty( $atts['id'] ) ) {
+      return '<div style="color:red">Kntnt Form Shortcode: Error: A form must have an id.</div>';
+    }
+
+
     // Remove unsupported attributes and add defalt values for missing ones.
     $atts = Plugin::shortcode_atts( self::$defaults, $atts );
 
@@ -69,7 +75,7 @@ class Form_Shortcode {
   private static function form( $atts, $content ) {
     $out = '';
     if ( $content ) {
-      $content = "\n" . wp_nonce_field( Plugin::ns(), '_wpnonce', true, false ) . $content;
+      $content = "\n" . wp_nonce_field( -1, '_wpnonce', true, false ) . $content;
       $out = strtr( self::$template, [
         '{attributes}' => Plugin::attributes( $atts ),
         '{content}' => $content,
