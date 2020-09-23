@@ -41,23 +41,36 @@ class Field_Shortcode {
     'step' => [ 'date' => null, 'month' => null, 'week' => null, 'time' => null, 'datetime-local' => null, 'number' => null, 'range' => null ],
     'style' => null,
     'type' => null,
+    'wrapper-class' => null,
+    'wrapper-style' => null,
   ];
 
   // Array of supported fields and their templates.
   // Following placeholders in the templates will be replaced:
+  //   - {ns}         => the name space of this plugin
   //   - {id}         => the fields id attribute
   //   - {value}      => the value/content of the field
   //   - {attributes} => all attributes except id and value
   private static $templates = [
-    'textarea' => '<textarea id="{id}" name="{id}" {attributes}>{value}</textarea>',
-    'text' => '<input type="text" id="{id}" name="{id}" value="{value}" {attributes}>',
-    'email' => '<input type="email" id="{id}" name="{id}" value="{value}" {attributes}>',
-    'url' => '<input type="url" id="{id}" name="{id}" value="{value}" {attributes}>',
-    'tel' => '<input type="tel" id="{id}" name="{id}" value="{value}" {attributes}>',
-    'hidden' => '<input type="hidden" id="{id}" name="{id}" value="{value}" {attributes}>',
-    'html' => '<div id="{id}" {attributes}>{value}</div>',
-    'submit' => '<input type="submit" value="{value}" {attributes}>',
+    'html' => "<div id=\"{id}\" {attributes}>\n{value}\n</div>",
+    'textarea' => "<textarea id=\"{id}\" name=\"{ns}[{id}]\" {attributes}>\n{value}\n</textarea>",
+    'text' => '<input type="text" id="{id}" name="{ns}[{id}]" value="{value}" {attributes}>',
+    'email' => '<input type="email" id="{id}" name="{ns}[{id}]" value="{value}" {attributes}>',
+    'url' => '<input type="url" id="{id}" name="{ns}[{id}]" value="{value}" {attributes}>',
+    'tel' => '<input type="tel" id="{id}" name="{ns}[{id}]" value="{value}" {attributes}>',
+    'hidden' => '<input type="hidden" id="{id}" name="{ns}[{id}]" value="{value}" {attributes}>',
+    'submit' => '<input type="submit" id="{id}" value="{value}" {attributes}>',
   ];
+
+  // Template for generating the field wrapper.
+  // Following placeholders in the template will be replaced:
+  //   - {ns}         => the name space of this plugin
+  //   - {id}         => the id attribute of the enclosed field
+  //   - {attributes} => attribues of the wrapper if provided
+  //   - {label}      => <label>…</label> with a label if provided
+  //   - {field}      => the field itself
+  //   - {decription} => <div>…</div> with a description if provided
+  private static $wrapper_template = "<div id=\"{id}-wrapper\" {attributes}>\n{label}\n{field}\n{description}\n</div>\n";
 
   public function run() {
     add_shortcode( 'field', [ $this, 'shortcode' ] );
@@ -69,8 +82,8 @@ class Field_Shortcode {
 
   public function shortcode( $atts, $content ) {
 
-    // Leave shortcode as it is if its type is not provided.
-    if ( empty( $atts['type'] ) ) {
+    // Do nothing if type isn't provided or not supported.
+    if ( empty( $atts['type'] ) || ! isset( self::$templates[$atts['type']] ) ) {
       return $content;
     }
 
@@ -85,20 +98,22 @@ class Field_Shortcode {
     // Remove unsupported attributes and add defalt values for missing ones.
     $atts = Plugin::shortcode_atts( self::defaults( $atts['type'] ), $atts );
 
-    // Fetch label and description and remove them from the list of attributes.
-    $label = Plugin::peel_off( 'label', $atts );
-    $description = Plugin::peel_off( 'description', $atts );
-
-    // Remaning attributes will be used as HTML attributes. Remove those with
-    // no value, and trim and escape the other.
-    $atts = array_filter( $atts, function( $att ) { return null !== $att; } );
-    $atts = Plugin::esc_attrs( $atts );
+    // Prepare attributes for the wrapper.
+    $wrapper_atts = [
+      'id' => $atts['id'],
+      'type' => $atts['type'],
+      'class' => Plugin::peel_off( 'wrapper-class', $atts ),
+      'style' => Plugin::peel_off( 'wrapper-style', $atts ),
+      'label' => Plugin::peel_off( 'label', $atts ),
+      'description' => Plugin::peel_off( 'description', $atts ),
+    ];
 
     // Execute any shortcodes in the enclosed content.
     $content = do_shortcode( $content );
 
-    // Create a HTML from field.
-    $content =  self::field( $atts, $content, $label, $description );
+    // Create a HTML form field.
+    $content =  self::field( $atts, $content );
+    $content =  self::wrapper( $wrapper_atts, $content );
 
     return $content;
 
@@ -121,18 +136,64 @@ class Field_Shortcode {
     return $defaults;
   }
 
-  // Returns a HTML form field.
+  // Generate HTML for a field.
   private static function field( $atts, $content ) {
-    $out = '';
+
+    // Attributes will be used as HTML attributes. Remove those with
+    // no value, and trim and escape the others.
+    $atts = array_filter( $atts, function( $att ) { return null !== $att; } );
+    $atts = Plugin::esc_attrs( $atts );
+
+    // Get the type and id of the field.
     $type = Plugin::peel_off( 'type', $atts );
-    if ( isset( self::$templates[$type] ) ) {
-      $out = strtr( self::$templates[$type], [
-        '{id}' => Plugin::peel_off( 'id', $atts ),
-        '{attributes}' => Plugin::attributes( $atts ),
-        '{value}' => $content,
-      ] );
-    }
-    return $out;
+    $id = Plugin::peel_off( 'id', $atts );
+
+    // Allow developers to provide another field template than the default one.
+    $template = apply_filters( 'kntnt-form-shortcode-field-template', self::$templates[$type], $type, $id );
+
+    // Replace placeholders in the field template with actual values.
+    $content = strtr( $template, [
+      '{ns}' => Plugin::ns(),
+      '{id}' => $id,
+      '{attributes}' => Plugin::attributes( $atts ),
+      '{value}' => $content,
+    ] );
+
+    return $content;
+
+  }
+
+  // Generate HTML for a wrapper.
+  private static function wrapper( $atts, $content ) {
+
+    // Extract non-HTML attributes.
+    $label = Plugin::peel_off( 'label', $atts );
+    $description = Plugin::peel_off( 'description', $atts );
+
+    // Remaining attributes will be used as HTML attributes. Remove those with
+    // no value, and trim and escape the others.
+    $atts = array_filter( $atts, function( $att ) { return null !== $att; } );
+    $atts = Plugin::esc_attrs( $atts );
+
+    // Get the type and id of the field wrapped.
+    $type = Plugin::peel_off( 'type', $atts );
+    $id = Plugin::peel_off( 'id', $atts );
+
+    // Allow developers to provide another wrapper template than the default one.
+    $template = apply_filters( 'kntnt-form-shortcode-wrapper-template', self::$wrapper_template, $type, $id );
+
+    // Replace placeholders in the wrapper template with actual values.
+    $content = strtr( $template, [
+      '{ns}' => Plugin::ns(),
+      '{id}' => $id,
+      '{attributes}' => Plugin::attributes( $atts ),
+      '{label}' => $label,
+      '{field}' => $content,
+      '{description}' => $description,
+    ] );
+
+    return $content;
+
   }
 
 }
