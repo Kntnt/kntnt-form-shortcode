@@ -13,8 +13,8 @@ class Form_Shortcode {
     'class' => null,
     'style' => null,
     'no-br' => false,
-    'post' => null,
-    'success' => null,
+    'action' => null,
+    'show' => null,
   ];
 
   // Template for generating the form elemet.
@@ -48,8 +48,7 @@ class Form_Shortcode {
       $atts['id'] = Plugin::ns() . '-' . ++$this->form_count;
     }
 
-    // Fetch post, show and no-br remove them from the list of attributes.
-    $post = Plugin::peel_off( 'post', $atts );
+    // Fetch action, show and no-br remove them from the list of attributes.
     $show = Plugin::peel_off( 'show', $atts );
     $no_br = Plugin::peel_off( 'no-br', $atts );
 
@@ -84,8 +83,9 @@ class Form_Shortcode {
 
       // Get label attributes and remove them from the array `$atts`.
       $html_atts = [
-        'class' => Plugin::peel_off( 'label_class', $atts ),
-        'style' => Plugin::peel_off( 'label_style', $atts ),
+        'action' => Plugin::peel_off( 'action', $atts ),
+        'class' => Plugin::peel_off( 'class', $atts ),
+        'style' => Plugin::peel_off( 'style', $atts ),
       ];
 
       // Allow developers to modify the label attributes.

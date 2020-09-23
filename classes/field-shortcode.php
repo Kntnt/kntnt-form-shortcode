@@ -20,9 +20,13 @@ class Field_Shortcode {
     'class' => null,
     'cols' => [ 'textarea' => 20 ],
     'description' => null,
+    'description-class' => null,
+    'description-style' => null,
     'disabled' => null,
     'id' => null,
     'label' => null,
+    'label-class' => null,
+    'label-style' => null,
     'max' => [ 'date' => null, 'month' => null, 'week' => null, 'time' => null, 'datetime-local' => null, 'number' => null, 'range' => null ],
     'maxlength' => [ 'password' => null, 'search' => null, 'tel' => null, 'text' => null, 'url' => null ],
     'min' => [ 'date' => null, 'month' => null, 'week' => null, 'time' => null, 'datetime-local' => null, 'number' => null, 'range' => null ],
@@ -164,7 +168,6 @@ class Field_Shortcode {
 
   private function label( &$atts ) {
 
-    // Get the label content and remove it from the array `$atts`.
     $content = Plugin::peel_off( 'label', $atts );
 
     // Allow developers to modify the the label content.
@@ -174,8 +177,8 @@ class Field_Shortcode {
 
       // Get label attributes and remove them from the array `$atts`.
       $html_atts = [
-        'class' => Plugin::peel_off( 'label_class', $atts ),
-        'style' => Plugin::peel_off( 'label_style', $atts ),
+        'class' => Plugin::peel_off( 'label-class', $atts ),
+        'style' => Plugin::peel_off( 'label-style', $atts ),
       ];
 
       // Allow developers to modify the label attributes.
@@ -210,8 +213,8 @@ class Field_Shortcode {
 
       // Get description attributes and remove them from the array `$atts`.
       $html_atts = [
-        'class' => Plugin::peel_off( 'label_class', $atts ),
-        'style' => Plugin::peel_off( 'label_style', $atts ),
+        'class' => Plugin::peel_off( 'description-class', $atts ),
+        'style' => Plugin::peel_off( 'description-style', $atts ),
       ];
 
       // Allow developers to modify the description attributes.
