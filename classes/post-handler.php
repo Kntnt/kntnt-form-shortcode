@@ -31,19 +31,20 @@ class Post_Handler {
     // being there. Jeez…
     $form_data = stripslashes_deep( $_POST[$id] );
 
+    // Extract information on what to show.
     $show = Plugin::peel_off( 'show', $form_data);
 
     // Let developers do something clever with the form data. :-)
     do_action( 'kntnt-form-shortcode-post', $form_data, $id );
 
     // Let developers decide if this was a success or not and what to show.
+    $status = apply_filters( 'kntnt-form-shortcode-post-data-status', [ 'success' => true, 'show' => $show ], $form_data, $id );
+
     // If `show` begins with http:// or https:// the user is redirected with
     // `Location`-header set to the content in `show`. Otherwise the content
     // of `show` is showed on either as a success or error message dependeing
     // on whether $success is true or false. If `shown` is empty, no message
     // is shown.
-    $status = apply_filters( 'kntnt-form-shortcode-post-data-status', [ 'success' => true, 'show' => $show ], $form_data, $id );
-
     if ( preg_match( '`^https?://`', $status['show'] ) ) {
       wp_redirect( $status['show'] );
       exit;
