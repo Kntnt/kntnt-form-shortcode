@@ -52,12 +52,12 @@ class Form_Shortcode {
     $show = Plugin::peel_off( 'show', $atts );
     $no_br = Plugin::peel_off( 'no-br', $atts );
 
-    // Execute field shortcodes in the enloced content.
+    // Allow the field shortcode in the enclosed content, and process it.
     $fs = Plugin::instance( 'Field_Shortcode' );
     $fs->set_form_id( $atts['id'] );
-    $fs->run(); // Add field shortcode
-    $content = do_shortcode( $content ); // Process shortcodes in content.
-    $fs->halt(); // Remove field shortcode
+    $fs->run();
+    $content = do_shortcode( $content );
+    $fs->halt();
 
     // Typically, a user will put field shortcodes on separate lines.
     // Wordpress' infamous wpautop() will interpret each line as empty, thus
@@ -69,6 +69,18 @@ class Form_Shortcode {
     if ( $no_br ) {
       $content = strtr( $content, [ '<br />' => '' ] );
     }
+
+    // If no action is given, i.e. this form is posted to current page, save in
+    // a hidden field what to show when coming back to this page.
+    if ( ! isset( $atts['action'] ) ) {
+      $content .= strtr( '<input type="hidden" name="{id}[show]" value="{show}">', [ '{show}' => esc_attr( $show ), '{id}' => $atts['id'] ] );
+    }
+
+    // Add an identifier that the Post_Handler can look for.
+    $content .= strtr( '<input type="hidden" name="{ns}" value="{id}">', [ '{id}' => $atts['id'], '{ns}' => Plugin::ns() ] );
+
+    // Add cryptographic nonce for security.
+    $content .= wp_nonce_field( Plugin::ns(), '_wpnonce', true, false );
 
     // Create a HTML form.
     $content = $this->form( $atts, $content );

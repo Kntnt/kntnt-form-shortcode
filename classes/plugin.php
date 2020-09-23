@@ -121,7 +121,8 @@ class Plugin {
 
   // The main function of this plugin.
   public function run() {
-    self::instance( 'Form_Shortcode' )->run();
+    add_action( 'plugins_loaded' , [ self::instance( 'Form_Shortcode' ), 'run' ] );
+    add_action( 'template_redirect', [ self::instance( 'Post_Handler' ), 'run' ] );
   }
 
 }
