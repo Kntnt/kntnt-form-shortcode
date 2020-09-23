@@ -3,6 +3,7 @@
 
 namespace Kntnt\Form_Shortcode;
 
+
 class Plugin {
 
   static private $ns;
@@ -24,21 +25,29 @@ class Plugin {
       load_plugin_textdomain( self::$ns, false, self::$ns . '/languages' );
     } );
 
+    // Set things in motion.
     $this->run();
 
   }
   
+  // Name space of the plugin.
   public static final function ns() {
     return self::$ns;
   }
 
+  // Returns the first created instance of the class with the provided name.
+  // If no such instance exists and `$create_if_not_existing` is true, or if
+  // `$create_always` is true, a new instance is created.
   public static final function instance( $class_name, $create_always = false, $create_if_not_existing = true ) {
     if ( $create_always || $create_if_not_existing && ! isset( self::$instances[$class_name] ) ) {
-
         $file_name = strtr( strtolower( $class_name ), '_', '-' );
         $class_name = __NAMESPACE__ . '\\' . $class_name;
         require_once self::$plugin_dir . "/classes/$file_name.php";
-        return self::$instances[$class_name] = new $class_name();
+        $instance = new $class_name();
+        if ( ! isset( self::$instances[$class_name] ) ) {
+          self::$instances[$class_name] = $instance;
+        }
+        return $instance;
     }
     else {
       if ( isset( self::$instances[$class_name] ) ) {
@@ -50,6 +59,8 @@ class Plugin {
     }
   }
 
+  // Removes the element with the provided key and returns it value or null if
+  // it didn't exist.
   public static function peel_off( $key, &$array ) {
     if( array_key_exists( $key, $array ) ) {
       $val = $array[$key];
@@ -61,6 +72,9 @@ class Plugin {
     return $val;
   }
 
+  // Walk through an array of strings and remove any leading or trailing white
+  // space and replace `<`, `>`, `&`, `”` and `‘` with corrsponding  HTML
+  // entity code (e.g. `&` becomes `&amp;`).
   public static function esc_attrs( $vals ) {
     foreach($vals as &$val) {
       $val = esc_attr( trim( $val ) );
@@ -68,6 +82,8 @@ class Plugin {
     return $vals;
   }
 
+  // Returns a string of space separated key/value-pairs from the provided
+  // array. The key/value pair has he form `key="value"`.
   public static function attributes( $atts ) {
     foreach( $atts as $att => &$val ) {
       if ( ! empty ( $val ) ) {
@@ -105,6 +121,7 @@ class Plugin {
 
   }
 
+  // The main function of this plugin.
   public function run() {
     self::instance( 'Form_Shortcode' )->run();
   }
