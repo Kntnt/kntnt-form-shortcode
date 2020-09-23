@@ -62,7 +62,7 @@ class Field_Shortcode {
     'url' => '<input type="url" id="{id}" name="{form-id}[{id}]" value="{value}" {attributes}>',
     'tel' => '<input type="tel" id="{id}" name="{form-id}[{id}]" value="{value}" {attributes}>',
     'hidden' => '<input type="hidden" id="{id}" name="{form-id}[{id}]" value="{value}" {attributes}>',
-    'submit' => '<input type="submit" id="{id}" name="{form-id}" value="{value}" {attributes}>',
+    'submit' => '<input type="submit" id="{id}" name="{form-id}[{id}]" value="{value}" {attributes}>',
   ];
 
   // Template for generating a label.
