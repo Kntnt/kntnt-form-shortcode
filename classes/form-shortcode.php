@@ -10,7 +10,7 @@ class Form_Shortcode {
     'id' => null,
     'class' => null,
     'style' => null,
-    'no_br' => true,
+    'no_br' => false,
     'post' => null,
     'success' => null,
   ];
