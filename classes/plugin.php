@@ -10,7 +10,7 @@ class Plugin {
 
     static private $plugin_dir;
 
-    static private $instances;
+    static private $instances = [];
 
     public function __construct() {
 
@@ -41,13 +41,12 @@ class Plugin {
     public static final function instance( $class_name, $create_always = false, $create_if_not_existing = true ) {
         if ( $create_always || $create_if_not_existing && ! isset( self::$instances[ $class_name ] ) ) {
             $file_name = strtr( strtolower( $class_name ), '_', '-' );
-            $class_name = __NAMESPACE__ . '\\' . $class_name;
             require_once self::$plugin_dir . "/classes/$file_name.php";
-            $instance = new $class_name();
+            $class = __NAMESPACE__ . '\\' . $class_name;
+            $instance = new $class;
             if ( ! isset( self::$instances[ $class_name ] ) ) {
                 self::$instances[ $class_name ] = $instance;
             }
-
             return $instance;
         }
         else {
