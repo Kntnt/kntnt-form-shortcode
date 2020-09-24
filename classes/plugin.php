@@ -60,8 +60,8 @@ class Plugin {
         }
     }
 
-    // Removes the element with the provided key and returns it value or null if
-    // it didn't exist.
+    // Removes the element with the provided key and returns it value or null
+    // if it didn't exist.
     public static function peel_off( $key, &$array ) {
         if ( array_key_exists( $key, $array ) ) {
             $val = $array[ $key ];
@@ -78,7 +78,7 @@ class Plugin {
     // array. The key/value pair has the form `key="value"`. Only key/value-
     // pairs with a non-empty value after removing leading and trailing spaces
     // will be present. The value will be HTML encoded – any of the characters
-    // `<`, `>`, `&`, `”` and `‘` is replcaed with corrsponding  HTML entity.
+    // `<`, `>`, `&`, `”` and `‘` is replaced with corresponding  HTML entity.
     public static function attributes( $attributes ) {
         $a = [];
         foreach ( $attributes as $key => $value ) {
@@ -93,7 +93,7 @@ class Plugin {
         return join( ' ', $a );
     }
 
-    // A more forgiving version of WP's shortcode_atts().
+    // A more forgiving version of WordPress' shortcode_atts().
     public static function shortcode_atts( $pairs, $atts, $shortcode = '' ) {
 
         $atts = (array) $atts;

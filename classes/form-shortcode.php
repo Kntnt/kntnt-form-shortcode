@@ -71,8 +71,8 @@ class Form_Shortcode {
             $content = strtr( $content, [ '<br />' => '' ] );
         }
 
-        // If no action is given, i.e. this form is posted to current page, save
-        // in a hidden field what to show when coming back to this page.
+        // If no action is given, i.e. this form is posted to current page,
+        // save in a hidden field what to show when coming back to this page.
         if ( ! isset( $atts['action'] ) ) {
             $content .= strtr( '<input type="hidden" name="{id}[show]" value="{show}">', [ '{show}' => esc_attr( $show ), '{id}' => $atts['id'] ] );
         }

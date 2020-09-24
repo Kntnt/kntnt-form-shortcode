@@ -54,7 +54,7 @@ class Field_Shortcode {
 
     // Array of supported fields and their templates.
     // Following placeholders in the templates will be replaced:
-    //   - {form-id}         => the name space of this plugin
+    //   - {form-id}    => the name space of this plugin
     //   - {id}         => the fields id attribute
     //   - {value}      => the value/content of the field
     //   - {attributes} => all attributes except id and value
@@ -73,7 +73,7 @@ class Field_Shortcode {
     // Following placeholders in the template will be replaced:
     //   - {form-id}    => the id attribute of the form
     //   - {id}         => the id attribute of the associated field
-    //   - {attributes} => attribues of the label if provided
+    //   - {attributes} => attributes of the label if provided
     //   - {value}      => the content that replaces … in <label>…</label>
     private $label_template = '<label for="{id}" id={id}-label {attributes}>{value}</label>';
 
@@ -81,7 +81,7 @@ class Field_Shortcode {
     // Following placeholders in the template will be replaced:
     //   - {form-id}    => the id attribute of the form
     //   - {id}         => the id attribute of the associated field
-    //   - {attributes} => attribues of the description if provided
+    //   - {attributes} => attributes of the description if provided
     //   - {value}      => the content that replaces … in <div>…</div>
     private $description_template = '<div id={id}-description {attributes}>{value}</div>';
 
@@ -89,7 +89,7 @@ class Field_Shortcode {
     // Following placeholders in the template will be replaced:
     //   - {form-id}    => the id attribute of the form
     //   - {id}         => the id attribute of the enclosed field
-    //   - {attributes} => attribues of the wrapper if provided
+    //   - {attributes} => attributes of the wrapper if provided
     //   - {label}      => <label>…</label> with a label if provided
     //   - {field}      => the field itself
     //   - {decription} => <div>…</div> with a description if provided
@@ -117,7 +117,7 @@ class Field_Shortcode {
         // Allow developers to modify the default attributes.
         $defaults = apply_filters( 'kntnt-form-shortcode-field-defaults', $this->defaults( $atts['type'] ), $atts['type'] );
 
-        // Remove unsupported attributes and add defalt values for missing ones.
+        // Remove unsupported attributes and add default values for missing ones.
         $atts = Plugin::shortcode_atts( $defaults, $atts );
 
         // Add `id` if missing.
@@ -150,7 +150,7 @@ class Field_Shortcode {
     }
 
     // Returns an array of attributes and their default values for
-    // a field of the provied type.
+    // a field of the provided type.
     private function defaults( $type ) {
         $defaults = [];
         foreach ( $this->defaults as $att => $val ) {
