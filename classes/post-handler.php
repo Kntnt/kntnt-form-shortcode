@@ -5,6 +5,10 @@ namespace Kntnt\Form_Shortcode;
 
 class Post_Handler {
 
+    private $form_id = null;
+
+    private $success = null;
+
     public function run() {
 
         // Is this page shown because of POST by a form built with this plugin?
@@ -15,48 +19,53 @@ class Post_Handler {
                 wp_die( '', __( 'Something went wrong.' ), 403 );
             }
 
+            // Get the form id.
+            $this->form_id = $_POST[ Plugin::ns() ];
+
             // Handle the post data.
-            $this->handle( $_POST[ Plugin::ns() ] );
+            $this->handle();
 
         }
 
     }
 
-    public function handle( $id ) {
+    public function handle() {
 
         // Fetch the posted data. The need for stripslashes() despite that
         // Magic Quotes were deprecated already in PHP 5.4 is due to WordPress
         // backward compatibility. WordPress roll their won version of "magic
         // quotes" because "too much core and plugin code have come to rely on
         // the quotes being there". Jeez…
-        $form_data = stripslashes_deep( $_POST[ $id ] );
+        $form_data = stripslashes_deep( $_POST[ $this->form_id ] );
 
-        // Extract information on what to show.
-        $show = Plugin::peel_off( 'show', $form_data );
+        // Extract information whether or not to redirect.
+        $redirect = Plugin::peel_off( 'redirect', $form_data );
 
-        // Let developers do something clever with the form data. :-)
-        do_action( 'kntnt-form-shortcode-post', $form_data, $id );
+        // Let developers modify the form data.
+        $form_data = apply_filters( 'kntnt-form-shortcode-post-data', $form_data, $this->form_id );
 
         // Let developers decide if this was a success or not and what to show.
-        $status = apply_filters( 'kntnt-form-shortcode-post-data-status', [ 'success' => true, 'show' => $show ], $form_data, $id );
+        $this->success = apply_filters( 'kntnt-form-shortcode-post-status', true, $form_data, $this->form_id );
 
-        // If `show` begins with http:// or https:// the user is redirected with
-        // `Location`-header set to the content in `show`. Otherwise the content
-        // of `show` is showed on either as a success or error message depending
-        // on whether $success is true or false. If `shown` is empty, no message
-        // is shown.
-        if ( preg_match( '`^https?://`', $status['show'] ) ) {
-            wp_redirect( $status['show'] );
-            exit;
-        }
-        else if ( ! empty( $status['show'] ) ) {
-            $this->show_message( $status['show'], $status['success'] );
+        // Success?
+        if ( $this->success ) {
+
+            // Let developers do something clever with the form data. :-)
+            do_action( 'kntnt-form-shortcode-post', $form_data, $this->form_id, $this->success );
+
+            // If `redirect` is not empty, user is redirected with
+            // `Location`-header set to the content in `redirect`.
+            if ( $redirect ) {
+                wp_redirect( $redirect );
+                exit;
+            }
+
         }
 
     }
 
-    private function show_message( $message, $success_message ) {
-        echo "<script> alert( '$message' ); </script>"; // TODO: Replace this hack with text in the rendered form.
+    public function is_success( $form_id ) {
+        return is_null( $this->form_id ) || $form_id != $this->form_id ? null : $this->success;
     }
 
 }

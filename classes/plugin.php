@@ -20,11 +20,6 @@ class Plugin {
         // Path to this plugin's directory relative file system root.
         self::$plugin_dir = strtr( dirname( __DIR__ ), '\\', '/' );
 
-        // Setup localization.
-        add_action( 'plugins_loaded', function () {
-            load_plugin_textdomain( self::$ns, false, self::$ns . '/languages' );
-        } );
-
         // Set things in motion.
         $this->run();
 

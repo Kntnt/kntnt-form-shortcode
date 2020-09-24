@@ -16,14 +16,21 @@ class Field_Shortcode {
     // keys of that array correspond to input types for which the attribute is
     // allowed, and the values of that array is corresponding default values.
     private $defaults = [
-        'checked' => [ 'radio' => false, 'checkbox' => false ],
+
+        // Keep type, id, class and style at top and in that order to make it
+        // possible for users to use positional arguments instead of named
+        // arguments for them.
+        'type' => null,
+        'id' => null,
         'class' => null,
+        'style' => null,
+
+        'checked' => [ 'radio' => false, 'checkbox' => false ],
         'cols' => [ 'textarea' => 20 ],
         'description' => null,
         'description-class' => null,
         'description-style' => null,
         'disabled' => null,
-        'id' => null,
         'label' => null,
         'label-class' => null,
         'label-style' => null,
@@ -46,10 +53,9 @@ class Field_Shortcode {
         'size' => [ 'email' => null, 'password' => null, 'tel' => null, 'text' => null ],
         'spellcheck' => [ 'textarea' => null ],
         'step' => [ 'date' => null, 'month' => null, 'week' => null, 'time' => null, 'datetime-local' => null, 'number' => null, 'range' => null ],
-        'style' => null,
-        'type' => null,
         'wrapper-class' => null,
         'wrapper-style' => null,
+
     ];
 
     // Array of supported fields and their templates.
@@ -67,6 +73,8 @@ class Field_Shortcode {
         'tel' => '<input type="tel" id="{id}" name="{form-id}[{id}]" value="{value}" {attributes}>',
         'hidden' => '<input type="hidden" id="{id}" name="{form-id}[{id}]" value="{value}" {attributes}>',
         'submit' => '<input type="submit" id="{id}" name="{form-id}[{id}]" value="{value}" {attributes}>',
+        'success' => "<div id=\"{id}\" {attributes}>\n{value}\n</div>",
+        'failure' => "<div id=\"{id}\" {attributes}>\n{value}\n</div>",
     ];
 
     // Template for generating a label.
@@ -107,31 +115,60 @@ class Field_Shortcode {
         remove_shortcode( 'field' );
     }
 
-    public function shortcode( $atts, $content ) {
+    public function shortcode( $atts, $content = '' ) {
+
+        // Plugin::shortcode_atts(), called below, will translate positional
+        // attributes to named attributes and fill in default attributes for
+        // missing ones. But we need the attribute `type` before that…
+        if ( isset( $atts['type'] ) ) {
+            $type = $atts['type'];
+        }
+        else if ( ! isset( $atts['type'] ) && isset( $atts[0] ) ) {
+            $type = $atts[0];
+        }
 
         // Do nothing if type isn't provided or not supported.
-        if ( empty( $atts['type'] ) || ! isset( $this->templates[ $atts['type'] ] ) ) {
+        if ( empty( $type ) || ! isset( $this->templates[ $type ] ) ) {
             return $content;
         }
 
         // Allow developers to modify the default attributes.
-        $defaults = apply_filters( 'kntnt-form-shortcode-field-defaults', $this->defaults( $atts['type'] ), $atts['type'] );
+        $defaults = apply_filters( 'kntnt-form-shortcode-field-defaults', $this->defaults( $type ), $type );
 
         // Remove unsupported attributes and add default values for missing ones.
         $atts = Plugin::shortcode_atts( $defaults, $atts );
 
         // Add `id` if missing.
         if ( empty( $atts['id'] ) ) {
-            if ( empty( $this->type_count[ $atts['type'] ] ) ) {
-                $this->type_count[ $atts['type'] ] = 0;
+            if ( empty( $this->type_count[ $type ] ) ) {
+                $this->type_count[ $type ] = 0;
             }
-            $atts['id'] = $atts['type'] . '-' . ++ $this->type_count[ $atts['type'] ];
+            $atts['id'] = $type . '-' . ++ $this->type_count[ $type ];
+        }
+
+        // `$post_success === true` iff the current page is shown after a
+        // successful post of this form. `$post_success === true` iff the
+        // current page is shown after a failed post of this form.
+        $post_success = Plugin::instance( 'Post_Handler' )->is_success( $this->form_id );
+
+        // Return nothing if this is a success message field and this pages is
+        // not viewed due to the form has been posted or if there are errors
+        // in the posted data.
+        if ( 'success' == $type && ( true !== $post_success ) ) {
+            return '';
+        }
+
+        // Return nothing if this is a failure message field and this pages is
+        // not viewed due to the form has been posted or if there are no errors
+        // in the posted data.
+        if ( 'failure' == $type && ( false !== $post_success ) ) {
+            return '';
         }
 
         // Prepare attributes for the wrapper.
         $wrapper_atts = [
             'id' => $atts['id'],
-            'type' => $atts['type'],
+            'type' => $type,
             'class' => Plugin::peel_off( 'wrapper-class', $atts ),
             'style' => Plugin::peel_off( 'wrapper-style', $atts ),
             'label' => $this->label( $atts ),

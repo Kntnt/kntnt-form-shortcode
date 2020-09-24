@@ -8,13 +8,15 @@ class Form_Shortcode {
     private $form_count = 0;
 
     // Array of supported attributes and their default values.
+    // Keep them in the same order to make it possible for users to use
+    // positional arguments instead of named arguments for them.
     private $defaults = [
         'id' => null,
         'class' => null,
         'style' => null,
-        'no-br' => false,
+        'redirect' => null,
         'action' => null,
-        'show' => null,
+        'keep-br' => false,
     ];
 
     // Template for generating the form element.
@@ -28,7 +30,6 @@ class Form_Shortcode {
 
         add_filter( 'no_texturize_shortcodes', function ( $shortcodes ) {
             $shortcodes[] = 'form';
-
             return $shortcodes;
         } );
 
@@ -36,7 +37,12 @@ class Form_Shortcode {
 
     }
 
-    public function shortcode( $atts, $content ) {
+    public function set_message( $message, $success_message ) {
+        $this->message = $message;
+        $this->success_message = $success_message;
+    }
+
+    public function shortcode( $atts, $content = '' ) {
 
         // Allow developers to modify the default attributes.
         $defaults = apply_filters( 'kntnt-form-shortcode-form-defaults', $this->defaults );
@@ -49,9 +55,9 @@ class Form_Shortcode {
             $atts['id'] = Plugin::ns() . '-' . ++ $this->form_count;
         }
 
-        // Fetch action, show and no-br remove them from the list of attributes.
-        $show = Plugin::peel_off( 'show', $atts );
-        $no_br = Plugin::peel_off( 'no-br', $atts );
+        // Get and remove redirect and no-br from the list of attributes.
+        $redirect = Plugin::peel_off( 'redirect', $atts );
+        $keep_br = Plugin::peel_off( 'keep-br', $atts );
 
         // Allow the field shortcode in the enclosed content, and process it.
         $fs = Plugin::instance( 'Field_Shortcode' );
@@ -60,28 +66,34 @@ class Form_Shortcode {
         $content = do_shortcode( $content );
         $fs->halt();
 
-        // Typically, a user will put field shortcodes on separate lines.
-        // Wordpress' infamous wpautop() will interpret each line as empty, thus
-        // adding <br /> into HTML. The effect is a rudimentary styling of the
-        // form, which is not necessary a bad thing; uses who don't can/want to
-        // add their own CSS. But it is unnecessary and usually undesirable when
-        // one is styling the form. Hence the option to remove them with
-        // the shortcode attribute `no-br`.
-        if ( $no_br ) {
-            $content = strtr( $content, [ '<br />' => '' ] );
-        }
-
-        // If no action is given, i.e. this form is posted to current page,
-        // save in a hidden field what to show when coming back to this page.
-        if ( ! isset( $atts['action'] ) ) {
-            $content .= strtr( '<input type="hidden" name="{id}[show]" value="{show}">', [ '{show}' => esc_attr( $show ), '{id}' => $atts['id'] ] );
+        // The dreadful wpautop() messes with shortcodes in a crazy way that
+        // can only be cured with draconian measures. Let's delete all <br>:s!
+        // Users that don't know how to style can put each field between
+        // <p>…</p> to get a nice looking form. But for wpautop-lovers there is
+        // the possibility to add `keep-br="1"` in the shortcode.
+        if ( ! $keep_br ) {
+            $content = strtr( $content, [ '<br />' => '', '<br>' => '' ] );
         }
 
         // Add an identifier that the Post_Handler can look for.
         $content .= strtr( '<input type="hidden" name="{ns}" value="{id}">', [ '{id}' => $atts['id'], '{ns}' => Plugin::ns() ] );
 
-        // Add cryptographic nonce for security.
-        $content .= wp_nonce_field( Plugin::ns(), '_wpnonce', true, false );
+        // If no action attribute is provided, that is a URL to where this form
+        // should be posted, this plugin will take care of it.
+        if ( ! isset( $atts['action'] ) ) {
+
+            // For security, we add hidden fields to be verified to prevent
+            // various attacks including CSRF.
+            $content .= wp_nonce_field( Plugin::ns(), '_wpnonce', true, false );
+
+            // If a redirect URL is given, save in a hidden field where to
+            // redirect on success. If not set, current page is shown again
+            // with possible a success or failure message if provided as fields.
+            if ( isset( $redirect ) ) {
+                $content .= strtr( '<input type="hidden" name="{id}[redirect]" value="{redirect}">', [ '{redirect}' => esc_attr( $redirect ), '{id}' => $atts['id'] ] );
+            }
+
+        }
 
         // Create a HTML form.
         $content = $this->form( $atts, $content );
