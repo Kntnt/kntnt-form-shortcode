@@ -50,25 +50,22 @@ class Form_Shortcode {
             $atts['id'] = Plugin::ns() . '-' . ++ $this->form_count;
         }
 
-        // Get and remove redirect and no-br from the list of attributes.
+        // Allow developers to modify the attributes.
+        $atts = apply_filters( 'kntnt-form-shortcode-attributes', $atts, $atts['id'] );
+
+        // Fetch and remove redirect from the list of attributes.
         $redirect = Plugin::peel_off( 'redirect', $atts );
-        $keep_br = Plugin::peel_off( 'keep-br', $atts );
 
-        // Allow the field shortcode in the enclosed content, and process it.
-        $fs = Plugin::instance( 'Field_Shortcode' );
-        $fs->set_form_id( $atts['id'] );
-        $fs->run();
-        $content = do_shortcode( $content );
-        $fs->halt();
+        // Allow developers to modify the content before shortcodes are
+        // processed.
+        $content = apply_filters( 'kntnt-form-shortcode-content-before', $content, $atts['id'] );
 
-        // The dreadful wpautop() messes with shortcodes in a crazy way that
-        // can only be cured with draconian measures. Let's delete all <br>:s!
-        // Users that don't know how to style can put each field between
-        // <p>…</p> to get a nice looking form. But for wpautop-lovers there is
-        // the possibility to add `keep-br="1"` in the shortcode.
-        if ( ! $keep_br ) {
-            $content = strtr( $content, [ '<br />' => '', '<br>' => '' ] );
-        }
+        // Process the content.
+        $content = $this->do_shortcode( $content, $atts );
+
+        // Allow developers to modify the content after shortcodes were
+        // processed.
+        $content = apply_filters( 'kntnt-form-shortcode-content-after', $content, $atts['id'] );
 
         // Add an identifier that the Post_Handler can look for.
         $content .= strtr( '<input type="hidden" name="{ns}" value="{id}">', [ '{id}' => $atts['id'], '{ns}' => Plugin::ns() ] );
@@ -97,8 +94,33 @@ class Form_Shortcode {
 
     }
 
+    private function do_shortcode( $content, &$atts ) {
+
+        // Fetch and remove keep-br from the list of attributes.
+        $keep_br = Plugin::peel_off( 'keep-br', $atts );
+
+        // Allow the field shortcode in the enclosed content, and process it.
+        $fs = Plugin::instance( 'Field_Shortcode' );
+        $fs->set_form_id( $atts['id'] );
+        $fs->run();
+        $content = do_shortcode( $content );
+        $fs->halt();
+
+        // The dreadful wpautop() messes with shortcodes in a crazy way that
+        // can only be cured with draconian measures. Let's delete all <br>:s!
+        // Users that don't know how to style can put each field between
+        // <p>…</p> to get a nice looking form. But for wpautop-lovers there is
+        // the possibility to add `keep-br="1"` in the shortcode.
+        if ( ! $keep_br ) {
+            $content = strtr( $content, [ '<br />' => '', '<br>' => '' ] );
+        }
+
+        return $content;
+
+    }
+
     private function form( $atts, $content ) {
-        
+
         if ( $content ) {
 
             // Allow developers to modify the form attributes.
