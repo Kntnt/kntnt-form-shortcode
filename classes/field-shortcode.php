@@ -189,8 +189,13 @@ class Field_Shortcode {
     // Returns an array of attributes and their default values for
     // a field of the provided type.
     private function defaults( $type ) {
+
+        // Allow developers to modify the mapping from type to default values.
+        $type_to_defaults_map = apply_filters( 'kntnt-form-shortcode-field-defaults-map', $this->defaults );
+
+        // Create defaults for filed of the type $type.
         $defaults = [];
-        foreach ( $this->defaults as $att => $val ) {
+        foreach ( $type_to_defaults_map as $att => $val ) {
             if ( is_array( $val ) ) {
                 if ( array_key_exists( $type, $val ) ) {
                     $defaults[ $att ] = $val[ $type ];
