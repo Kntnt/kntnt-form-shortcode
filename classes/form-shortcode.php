@@ -37,17 +37,12 @@ class Form_Shortcode {
 
     }
 
-    public function set_message( $message, $success_message ) {
-        $this->message = $message;
-        $this->success_message = $success_message;
-    }
-
     public function shortcode( $atts, $content = '' ) {
 
         // Allow developers to modify the default attributes.
         $defaults = apply_filters( 'kntnt-form-shortcode-form-defaults', $this->defaults );
 
-        // Remove unsupported attributes and add defalt values for missing ones.
+        // Remove unsupported attributes and add default values for missing ones.
         $atts = Plugin::shortcode_atts( $defaults, $atts );
 
         // Add `id` if missing.
