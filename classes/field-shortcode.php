@@ -180,7 +180,11 @@ class Field_Shortcode {
 
         // Create a HTML form field.
         $content = $this->field( $atts, $content );
-        $content = $this->wrapper( $wrapper_atts, $content );
+
+        // Add wrapper if not a hidden field.
+        if ( 'hidden' != $type ) {
+            $content = $this->wrapper( $wrapper_atts, $content );
+        }
 
         return $content;
 
