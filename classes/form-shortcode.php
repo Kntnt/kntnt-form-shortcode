@@ -108,10 +108,10 @@ class Form_Shortcode {
                 'style' => Plugin::peel_off( 'style', $atts ),
             ];
 
-            // Allow developers to modify the label attributes.
+            // Allow developers to modify the form attributes.
             $html_atts = apply_filters( 'kntnt-form-shortcode-form-attributes', $html_atts, $atts['id'] );
 
-            // Allow developers to modify the label template.
+            // Allow developers to modify the form template.
             $form_template = apply_filters( 'kntnt-form-shortcode-form-template', $this->form_template, $atts['id'] );
 
             // Replace placeholders in the template with actual values.
