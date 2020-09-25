@@ -98,18 +98,11 @@ class Form_Shortcode {
     }
 
     private function form( $atts, $content ) {
-
+        
         if ( $content ) {
 
-            // Get label attributes and remove them from the array `$atts`.
-            $html_atts = [
-                'action' => Plugin::peel_off( 'action', $atts ),
-                'class' => Plugin::peel_off( 'class', $atts ),
-                'style' => Plugin::peel_off( 'style', $atts ),
-            ];
-
             // Allow developers to modify the form attributes.
-            $html_atts = apply_filters( 'kntnt-form-shortcode-form-attributes', $html_atts, $atts['id'] );
+            $atts = apply_filters( 'kntnt-form-shortcode-form-attributes', $atts, $atts['id'] );
 
             // Allow developers to modify the form template.
             $form_template = apply_filters( 'kntnt-form-shortcode-form-template', $this->form_template, $atts['id'] );
@@ -117,7 +110,7 @@ class Form_Shortcode {
             // Replace placeholders in the template with actual values.
             $content = strtr( $form_template, [
                 '{id}' => $atts['id'],
-                '{attributes}' => Plugin::attributes( $html_atts ),
+                '{attributes}' => Plugin::attributes( $atts ),
                 '{content}' => $content,
             ] );
 
