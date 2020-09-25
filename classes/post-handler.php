@@ -51,7 +51,7 @@ class Post_Handler {
         if ( $this->success ) {
 
             // Let developers do something clever with the form data. :-)
-            do_action( 'kntnt-form-shortcode-post', $form_data, $this->form_id, $this->success );
+            do_action( 'kntnt-form-shortcode-post', $form_data, $this->form_id );
 
             // If `redirect` is not empty, user is redirected with
             // `Location`-header set to the content in `redirect`.
