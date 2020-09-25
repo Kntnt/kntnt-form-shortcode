@@ -95,12 +95,12 @@ class Field_Shortcode {
 
     // Template for generating the field wrapper.
     // Following placeholders in the template will be replaced:
-    //   - {form-id}    => the id attribute of the form
-    //   - {id}         => the id attribute of the enclosed field
-    //   - {attributes} => attributes of the wrapper if provided
-    //   - {label}      => <label>…</label> with a label if provided
-    //   - {field}      => the field itself
-    //   - {decription} => <div>…</div> with a description if provided
+    //   - {form-id}     => the id attribute of the form
+    //   - {id}          => the id attribute of the enclosed field
+    //   - {attributes}  => attributes of the wrapper if provided
+    //   - {label}       => <label>…</label> with a label if provided
+    //   - {field}       => the field itself
+    //   - {description} => <div>…</div> with a description if provided
     private $wrapper_template = "<div id=\"{id}-wrapper\" {attributes}>\n{label}\n{field}\n{description}\n</div>\n";
 
     public function set_form_id( $form_id ) {
