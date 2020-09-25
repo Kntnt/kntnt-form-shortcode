@@ -165,6 +165,9 @@ class Field_Shortcode {
             return '';
         }
 
+        // Execute any shortcodes in the enclosed content.
+        $content = do_shortcode( $content );
+
         // Prepare attributes for the wrapper.
         $wrapper_atts = [
             'id' => $atts['id'],
@@ -174,9 +177,6 @@ class Field_Shortcode {
             'label' => $this->label( $atts ),
             'description' => $this->description( $atts ),
         ];
-
-        // Execute any shortcodes in the enclosed content.
-        $content = do_shortcode( $content );
 
         // Create a HTML form field.
         $content = $this->field( $atts, $content );
@@ -208,8 +208,8 @@ class Field_Shortcode {
 
         $content = Plugin::peel_off( 'label', $atts );
 
-        // Allow developers to modify the the label content.
-        $content = apply_filters( 'kntnt-form-shortcode-label-content', $content, $atts['type'], $atts['id'] );
+        // Allow developers to modify the label content.
+        $content = apply_filters( 'kntnt-form-shortcode-label-content', $content, $atts['type'], $atts['id'], $this->form_id );
 
         if ( $content ) {
 
@@ -220,10 +220,10 @@ class Field_Shortcode {
             ];
 
             // Allow developers to modify the label attributes.
-            $html_atts = apply_filters( 'kntnt-form-shortcode-label-attributes', $html_atts, $atts['type'], $atts['id'] );
+            $html_atts = apply_filters( 'kntnt-form-shortcode-label-attributes', $html_atts, $atts['type'], $atts['id'], $this->form_id );
 
             // Allow developers to modify the label template.
-            $template = apply_filters( 'kntnt-form-shortcode-label-template', $this->label_template, $atts['type'], $atts['id'] );
+            $template = apply_filters( 'kntnt-form-shortcode-label-template', $this->label_template, $atts['type'], $atts['id'], $this->form_id );
 
             // Replace placeholders in the template with actual values.
             $content = strtr( $template, [
@@ -244,8 +244,8 @@ class Field_Shortcode {
         // Get the description content and remove it from the array `$atts`.
         $content = Plugin::peel_off( 'description', $atts );
 
-        // Allow developers to modify the the description content.
-        $content = apply_filters( 'kntnt-form-shortcode-description-content', $content, $atts['type'], $atts['id'] );
+        // Allow developers to modify the description content.
+        $content = apply_filters( 'kntnt-form-shortcode-description-content', $content, $atts['type'], $atts['id'], $this->form_id );
 
         if ( $content ) {
 
@@ -256,10 +256,10 @@ class Field_Shortcode {
             ];
 
             // Allow developers to modify the description attributes.
-            $html_atts = apply_filters( 'kntnt-form-shortcode-description-attributes', $html_atts, $atts['type'], $atts['id'] );
+            $html_atts = apply_filters( 'kntnt-form-shortcode-description-attributes', $html_atts, $atts['type'], $atts['id'], $this->form_id );
 
             // Allow developers to modify the description template.
-            $template = apply_filters( 'kntnt-form-shortcode-description-template', $this->description_template, $atts['type'], $atts['id'] );
+            $template = apply_filters( 'kntnt-form-shortcode-description-template', $this->description_template, $atts['type'], $atts['id'], $this->form_id );
 
             // Replace placeholders in the template with actual values.
             $content = strtr( $template, [
@@ -282,8 +282,11 @@ class Field_Shortcode {
         $type = Plugin::peel_off( 'type', $atts );
         $id = Plugin::peel_off( 'id', $atts );
 
+        // Allow developers to modify the field attributes.
+        $atts = apply_filters( 'kntnt-form-shortcode-field-attributes', $atts, $type, $id, $this->form_id );
+
         // Allow developers to modify the field template.
-        $template = apply_filters( 'kntnt-form-shortcode-field-template', $this->templates[ $type ], $type, $id );
+        $template = apply_filters( 'kntnt-form-shortcode-field-template', $this->templates[ $type ], $type, $id, $this->form_id );
 
         // Replace placeholders in the field template with actual values.
         $content = strtr( $template, [
@@ -308,8 +311,11 @@ class Field_Shortcode {
         $type = Plugin::peel_off( 'type', $atts );
         $id = Plugin::peel_off( 'id', $atts );
 
+        // Allow developers to modify the wrapper attributes.
+        $atts = apply_filters( 'kntnt-form-shortcode-wrapper-attributes', $atts, $type, $id, $this->form_id );
+
         // Allow developers to modify the wrapper template.
-        $template = apply_filters( 'kntnt-form-shortcode-wrapper-template', $this->wrapper_template, $type, $id );
+        $template = apply_filters( 'kntnt-form-shortcode-wrapper-template', $this->wrapper_template, $type, $id, $this->form_id );
 
         // Replace placeholders in the wrapper template with actual values.
         $content = strtr( $template, [
