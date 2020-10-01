@@ -44,8 +44,8 @@ class Post_Handler {
         // Let developers modify the form data.
         $form_data = apply_filters( 'kntnt-form-shortcode-post-data', $form_data, $this->form_id );
 
-        // Let developers decide if this was a success or not and what to show.
-        $this->success = apply_filters( 'kntnt-form-shortcode-post-status', true, $form_data, $this->form_id );
+        // Let developers decide if this is a success or not so far.
+        $this->success = apply_filters( 'kntnt-form-shortcode-pre-success', true, $form_data, $this->form_id );
 
         // Success?
         if ( $this->success ) {
@@ -61,6 +61,9 @@ class Post_Handler {
             }
 
         }
+
+        // Let developers decide if this was a success or not.
+        $this->success = apply_filters( 'kntnt-form-shortcode-post-success', true, $form_data, $this->form_id );
 
     }
 
