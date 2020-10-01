@@ -18,6 +18,6 @@
 
 namespace Kntnt\Form_Shortcode;
 
-require_once 'classes/Plugin.php';
+require 'vendor/autoload.php';
 
 defined( 'WPINC' ) && new Plugin;
