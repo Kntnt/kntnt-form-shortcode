@@ -14,7 +14,8 @@ class Form_Shortcode {
         'id' => null,
         'class' => null,
         'style' => null,
-        'redirect' => null,
+        'success' => null,
+        'failure' => null,
         'action' => null,
         'keep-br' => false,
     ];
@@ -53,8 +54,10 @@ class Form_Shortcode {
         // Allow developers to modify the attributes.
         $atts = apply_filters( 'kntnt-form-shortcode-attributes', $atts, $atts['id'] );
 
-        // Fetch and remove redirect from the list of attributes.
-        $redirect = Plugin::peel_off( 'redirect', $atts );
+        // Fetch and remove success/failure redirect URL from the list
+        // of attributes.
+        $success = Plugin::peel_off( 'success', $atts );
+        $failure = Plugin::peel_off( 'failure', $atts );
 
         // Allow developers to modify the content before shortcodes are
         // processed.
@@ -78,11 +81,20 @@ class Form_Shortcode {
             // various attacks including CSRF.
             $content .= wp_nonce_field( Plugin::ns(), '_wpnonce', true, false );
 
-            // If a redirect URL is given, save in a hidden field where to
-            // redirect on success. If not set, current page is shown again
-            // with possible a success or failure message if provided as fields.
-            if ( isset( $redirect ) ) {
-                $content .= strtr( '<input type="hidden" name="{id}[redirect]" value="{redirect}">', [ '{redirect}' => esc_attr( $redirect ), '{id}' => $atts['id'] ] );
+            // If a success redirect URL is provided, add it to a hidden field
+            // to be used after form processing for redirection on success.
+            // If not provided, current page is shown again, including any
+            // provided success message field.
+            if ( isset( $success ) ) {
+                $content .= strtr( '<input type="hidden" name="{id}[success]" value="{success}">', [ '{success}' => esc_attr( $success ), '{id}' => $atts['id'] ] );
+            }
+
+            // If a failure redirect URL is provided, add it to a hidden field
+            // to be used after form processing for redirection on failure.
+            // If not provided, current page is shown again, including any
+            // provided failure message field.
+            if ( isset( $failure ) ) {
+                $content .= strtr( '<input type="hidden" name="{id}[failure]" value="{failure}">', [ '{failure}' => esc_attr( $failure ), '{id}' => $atts['id'] ] );
             }
 
         }

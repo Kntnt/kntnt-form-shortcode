@@ -38,8 +38,9 @@ class Post_Handler {
         // the quotes being there". Jeez…
         $form_data = stripslashes_deep( $_POST[ $this->form_id ] );
 
-        // Extract information whether or not to redirect.
-        $redirect = Plugin::peel_off( 'redirect', $form_data );
+        // Extract information whether or not to redirect on success/failure.
+        $success_redirect_url = Plugin::peel_off( 'success', $form_data );
+        $failure_redirect_url = Plugin::peel_off( 'failure', $form_data );
 
         // Let developers modify the form data.
         $form_data = apply_filters( 'kntnt-form-shortcode-post-data', $form_data, $this->form_id );
@@ -47,23 +48,29 @@ class Post_Handler {
         // Let developers decide if this is a success or not so far.
         $this->success = apply_filters( 'kntnt-form-shortcode-pre-success', true, $form_data, $this->form_id );
 
-        // Success?
+        // Let developers do something clever with the form data,
+        // if success so far.
         if ( $this->success ) {
-
-            // Let developers do something clever with the form data. :-)
             do_action( 'kntnt-form-shortcode-post', $form_data, $this->form_id );
-
-            // If `redirect` is not empty, user is redirected with
-            // `Location`-header set to the content in `redirect`.
-            if ( $redirect ) {
-                wp_redirect( $redirect );
-                exit;
-            }
-
         }
 
         // Let developers decide if this was a success or not.
-        $this->success = apply_filters( 'kntnt-form-shortcode-post-success', true, $form_data, $this->form_id );
+        $this->success = apply_filters( 'kntnt-form-shortcode-post-success', $this->success, $form_data, $this->form_id );
+
+        // If success or failure and corresponding redirect URL is provided,
+        // user is redirected with `Location`-header set to the URL.
+        if ( $this->success ) {
+            if ( $success_redirect_url ) {
+                wp_redirect( $success_redirect_url );
+                exit;
+            }
+        }
+        else {
+            if ( $failure_redirect_url ) {
+                wp_redirect( $failure_redirect_url );
+                exit;
+            }
+        }
 
     }
 
