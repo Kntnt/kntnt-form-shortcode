@@ -74,8 +74,4 @@ class Post_Handler {
 
     }
 
-    public function is_success( $form_id ) {
-        return is_null( $this->form_id ) || $form_id != $this->form_id ? null : $this->success;
-    }
-
 }
