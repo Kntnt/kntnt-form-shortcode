@@ -148,6 +148,8 @@ class Form_Shortcode {
                 '{content}' => $content,
             ] );
 
+            do_action( 'kntnt-form-shortcode-form', $atts['id'], $atts, $content );
+
         }
 
         return $content;
