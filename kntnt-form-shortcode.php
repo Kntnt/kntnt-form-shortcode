@@ -7,7 +7,7 @@
  * Plugin Name:       Kntnt Form Shortcode
  * Plugin URI:        https://www.kntnt.com/
  * GitHub Plugin URI: https://github.com/Kntnt/kntnt-form-shortcode
- * Description:       Provides shortcodes to build a form (i.e. a shortcode-based form builder) that can be used to build simple forms whose data is either sent with POST to a provided URL or provided through the action hook `kntnt-form-shortcode-submit`.
+ * Description:       Provides a shortcode-based form builder (i.e. shortcodes to build a form) that can be used to build simple forms whose data is either sent with POST to a provided URL or provided through the action hook `kntnt-form-shortcode-submit`.
  * Version:           1.2.4
  * Author:            Thomas Barregren
  * Author URI:        https://www.kntnt.com/
