@@ -38,6 +38,8 @@ class Post_Handler {
         // the quotes being there". Jeez…
         $form_data = stripslashes_deep( $_POST[ $this->form_id ] );
 
+        Plugin::log();
+
         // Extract information whether or not to redirect on success/failure.
         $success_redirect_url = Plugin::peel_off( 'success', $form_data );
         $failure_redirect_url = Plugin::peel_off( 'failure', $form_data );

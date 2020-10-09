@@ -6,8 +6,9 @@ namespace Kntnt\Form_Shortcode;
 
 class Plugin extends Abstract_Plugin {
 
-    use Shortcode;
-    use Option;
+    use Options;
+    use Shortcodes;
+    use Logger;
 
     // Removes the element with the provided key and returns it value or null
     // if it didn't exist.

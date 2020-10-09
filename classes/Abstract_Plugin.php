@@ -57,6 +57,15 @@ abstract class Abstract_Plugin {
 
         }
 
+        // Calls the "constructor" of each trait. The "constructor" is a method
+        // with the same name as the trait.
+        foreach ( class_uses( $this ) as $trait ) {
+            $method = substr( $trait, strrpos( $trait, '\\' ) + 1 );
+            if ( method_exists( $this, $method ) ) {
+                $this->$method();
+            }
+        }
+
     }
 
     // Returns the first created instance of the class with the provided name.
@@ -84,6 +93,17 @@ abstract class Abstract_Plugin {
     // Name space of plugin.
     public static final function ns() {
         return self::$ns;
+    }
+
+    // Plugin name.
+    public static final function name() {
+        $key = self::$ns . '-plugin-name';
+        $name = get_transient( $key );
+        if ( ! $name ) {
+            $name = get_plugin_data( self::plugin_dir( self::$ns . '.php' ), false, false )['Name'];
+            set_transient( $key, $name, DAY_IN_SECONDS );
+        }
+        return $name;
     }
 
     // Plugin version.

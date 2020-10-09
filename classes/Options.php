@@ -4,7 +4,7 @@
 namespace Kntnt\Form_Shortcode;
 
 
-trait Option {
+trait Options {
 
     // The call `option()` returns an option named as this plugin if it exists
     // and is an array. If it doesn't exists or is not an array, false is

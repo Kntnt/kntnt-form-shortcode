@@ -4,7 +4,7 @@
 namespace Kntnt\Form_Shortcode;
 
 
-trait Shortcode {
+trait Shortcodes {
 
     // A more forgiving version of WordPress' shortcode_atts().
     public static function shortcode_atts( $pairs, $atts, $shortcode = '' ) {

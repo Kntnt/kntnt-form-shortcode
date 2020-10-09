@@ -40,6 +40,8 @@ class Form_Shortcode {
 
     public function shortcode( $atts, $content = '' ) {
 
+        Plugin::log();
+
         // Allow developers to modify the default attributes.
         $defaults = apply_filters( 'kntnt-form-shortcode-form-defaults', $this->defaults );
 
