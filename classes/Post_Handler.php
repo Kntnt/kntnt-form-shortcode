@@ -48,14 +48,16 @@ class Post_Handler {
         // Let developers decide if this is a success or not so far.
         $this->success = apply_filters( 'kntnt-form-shortcode-pre-success', true, $form_data, $this->form_id );
 
-        // Let developers do something clever with the form data,
-        // if success so far.
         if ( $this->success ) {
-            do_action( 'kntnt-form-shortcode-post', $form_data, $this->form_id );
-        }
 
-        // Let developers decide if this was a success or not.
-        $this->success = apply_filters( 'kntnt-form-shortcode-post-success', $this->success, $form_data, $this->form_id );
+            // Let developers do something clever with the form data,
+            // if success so far.
+            do_action( 'kntnt-form-shortcode-post', $form_data, $this->form_id );
+
+            // Let developers decide if this was a success or not.
+            $this->success = apply_filters( 'kntnt-form-shortcode-post-success', $this->success, $form_data, $this->form_id );
+
+        }
 
         // If success or failure and corresponding redirect URL is provided,
         // user is redirected with `Location`-header set to the URL.
