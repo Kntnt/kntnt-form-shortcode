@@ -305,7 +305,7 @@ class Field_Shortcode {
             '{value}' => $content,
         ] );
 
-        do_action( 'kntnt-form-shortcode-field', $id, $type, $atts, $content, $this->form_id );
+        do_action( 'kntnt-form-shortcode-field', $this->form_id, $id, $type, $atts, $content );
 
         return $content;
 
