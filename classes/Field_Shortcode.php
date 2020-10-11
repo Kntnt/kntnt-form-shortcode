@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection HtmlUnknownAttribute */
 
 
 namespace Kntnt\Form_Shortcode;
