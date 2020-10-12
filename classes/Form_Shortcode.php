@@ -88,7 +88,7 @@ class Form_Shortcode {
             // If not provided, current page is shown again, including any
             // provided success message field.
             if ( isset( $success ) ) {
-                $content .= strtr( '<input type="hidden" name="{id}[success]" value="{success}">', [ '{success}' => esc_attr( $success ), '{id}' => $atts['id'] ] );
+                $content .= strtr( '<input type="hidden" name="{id}[success]" value="{success}">', [ '{success}' => esc_attr( add_query_arg( $_GET, $success ) ), '{id}' => $atts['id'] ] );
             }
 
             // If a failure redirect URL is provided, add it to a hidden field
@@ -96,7 +96,7 @@ class Form_Shortcode {
             // If not provided, current page is shown again, including any
             // provided failure message field.
             if ( isset( $failure ) ) {
-                $content .= strtr( '<input type="hidden" name="{id}[failure]" value="{failure}">', [ '{failure}' => esc_attr( $failure ), '{id}' => $atts['id'] ] );
+                $content .= strtr( '<input type="hidden" name="{id}[failure]" value="{failure}">', [ '{failure}' => esc_attr( add_query_arg( $_GET, $failure ) ), '{id}' => $atts['id'] ] );
             }
 
         }
